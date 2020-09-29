@@ -21,4 +21,25 @@ class Gallows
   end
 end
 
+# Responsible for the generation and checking of the secret word
+class Secret
+  def initialize
+    dictionary = File.readlines('5desk.txt').select { |word| word.chomp.length > 5 && word.chomp.length < 12 }
+    @word = dictionary.sample.chomp.downcase
+    puts @word
+  end
 
+  def reveal
+    @word
+  end
+
+  def matches(guess)
+    matching_chars = @word.split('').select { |char| char == guess }
+    puts "#{matching_chars.size} letters matching"
+    matching_chars.size
+  end
+
+  def solved?(right_guesses)
+    true if @word.size == right_guesses
+  end
+end
