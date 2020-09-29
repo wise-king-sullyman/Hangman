@@ -52,3 +52,29 @@ class Player
     this_guess
   end
 end
+
+# Responsible for the operation of the game mechanics
+class Game
+  def initialize
+    @secret = Secret.new
+    @gallows = Gallows.new
+    @player = Player.new
+    @right_guesses = 0
+  end
+
+  def play
+    until @gallows.dropsies?
+      guess = @player.guess
+      feedback = @secret.matches(guess)
+      @right_guesses += feedback
+      break if @secret.solved?(@right_guesses)
+
+      @gallows.next_stage if feedback.zero?
+      @gallows.draw
+    end
+    @secret.solved?(@right_guesses) ? puts('You won!') : puts('You lose you big looser!')
+  end
+end
+
+game = Game.new
+game.play
