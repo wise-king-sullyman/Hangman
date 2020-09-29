@@ -43,3 +43,12 @@ class Secret
     true if @word.size == right_guesses
   end
 end
+
+# Responsible for executing the actions of the player, namely guessing
+class Player
+  def guess
+    puts 'Enter guess now'
+    this_guess = gets.chomp.downcase
+    this_guess
+  end
+end
