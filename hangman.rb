@@ -26,7 +26,7 @@ class Secret
   def initialize
     dictionary = File.readlines('5desk.txt').select { |word| word.chomp.length > 5 && word.chomp.length < 12 }
     @word = dictionary.sample.chomp.downcase
-    @blank_char = '_'
+    @blank_char = '_ '
     puts @word
   end
 
@@ -39,15 +39,15 @@ class Secret
       char == guess ? char : @blank_char
     end
     combined_feedback = combine_feedback(new_feedback, previous_feedback)
-    puts combined_feedback.join
-    combined_feedback.join
+    puts combined_feedback.join(' ')
+    combined_feedback
   end
 
   def combine_feedback(new_feedback, previous_feedback)
     combined_feedback = new_feedback.map.with_index do |char, index|
       if char != @blank_char
         char
-      elsif char == @blank_char && previous_feedback[index] != @blank_char
+      elsif previous_feedback[index] != @blank_char
         previous_feedback[index]
       else
         @blank_char
@@ -57,11 +57,11 @@ class Secret
   end
 
   def blank_word
-    @word.split('').map { |char| char.replace @blank_char }.join
+    @word.split('').map { |char| char.replace @blank_char }
   end
 
   def solved?(feedback)
-    true if @word == feedback
+    true if @word.split('') == feedback
   end
 end
 
