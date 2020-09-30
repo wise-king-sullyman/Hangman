@@ -26,6 +26,7 @@ class Secret
   def initialize
     dictionary = File.readlines('5desk.txt').select { |word| word.chomp.length > 5 && word.chomp.length < 12 }
     @word = dictionary.sample.chomp.downcase
+    @blank_char = '_'
     puts @word
   end
 
@@ -33,14 +34,34 @@ class Secret
     @word
   end
 
-  def matches(guess)
-    matching_chars = @word.split('').select { |char| char == guess }
-    puts "#{matching_chars.size} letters matching"
-    matching_chars.size
+  def matches(guess, previous_feedback)
+    new_feedback = @word.split('').map do |char|
+      char == guess ? char : @blank_char
+    end
+    combined_feedback = combine_feedback(new_feedback, previous_feedback)
+    puts combined_feedback.join
+    combined_feedback.join
   end
 
-  def solved?(right_guesses)
-    true if @word.size == right_guesses
+  def combine_feedback(new_feedback, previous_feedback)
+    combined_feedback = new_feedback.map.with_index do |char, index|
+      if char != @blank_char
+        char
+      elsif char == @blank_char && previous_feedback[index] != @blank_char
+        previous_feedback[index]
+      else
+        @blank_char
+      end
+    end
+    combined_feedback
+  end
+
+  def blank_word
+    @word.split('').map { |char| char.replace @blank_char }.join
+  end
+
+  def solved?(feedback)
+    true if @word == feedback
   end
 end
 
@@ -59,20 +80,20 @@ class Game
     @secret = Secret.new
     @gallows = Gallows.new
     @player = Player.new
-    @right_guesses = 0
+    @previous_feedback = @secret.blank_word
   end
 
   def play
     until @gallows.dropsies?
       guess = @player.guess
-      feedback = @secret.matches(guess)
-      @right_guesses += feedback
-      break if @secret.solved?(@right_guesses)
+      feedback = @secret.matches(guess, @previous_feedback)
+      break if @secret.solved?(feedback)
 
-      @gallows.next_stage if feedback.zero?
+      @gallows.next_stage if feedback == @previous_feedback
       @gallows.draw
+      @previous_feedback = feedback
     end
-    @secret.solved?(@right_guesses) ? puts('You won!') : puts('You lose you big looser!')
+    @secret.solved?(feedback) ? puts('You won!') : puts('You lose you big looser!')
   end
 end
 
