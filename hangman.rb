@@ -39,7 +39,6 @@ class Secret
       char == guess ? char : @blank_char
     end
     combined_feedback = combine_feedback(new_feedback, previous_feedback)
-    puts combined_feedback.join(' ')
     combined_feedback
   end
 
@@ -81,19 +80,31 @@ class Game
     @gallows = Gallows.new
     @player = Player.new
     @previous_feedback = @secret.blank_word
+    @incorrect_guesses = []
   end
 
   def play
     until @gallows.dropsies?
       guess = @player.guess
-      feedback = @secret.matches(guess, @previous_feedback)
-      break if @secret.solved?(feedback)
+      new_feedback = @secret.matches(guess, @previous_feedback)
+      break if @secret.solved?(new_feedback)
 
-      @gallows.next_stage if feedback == @previous_feedback
+      wrong_guess(guess) if new_feedback == @previous_feedback
+      print_feedback(new_feedback)
       @gallows.draw
-      @previous_feedback = feedback
+      @previous_feedback = new_feedback
     end
-    @secret.solved?(feedback) ? puts('You won!') : puts('You lose you big looser!')
+    @secret.solved?(new_feedback) ? puts('You won!') : puts('You lose you big looser!')
+  end
+
+  def print_feedback(feedback)
+    puts feedback.join(' ')
+    puts "Incorrect Guesses: #{@incorrect_guesses.join(' ')}"
+  end
+
+  def wrong_guess(guess)
+    @gallows.next_stage 
+    @incorrect_guesses.push(guess)
   end
 end
 
