@@ -86,8 +86,7 @@ class Game
   end
 
   def play
-    puts 'Load previous game? y/n'
-    load_game if gets.chomp == 'y'
+    ask_to_load_game if File.exist?('hangman_save.yaml')
     puts 'Save and quit the game any round by entering "save" in place of your guess'
     print_feedback(@previous_feedback)
     game_loop
@@ -117,17 +116,19 @@ class Game
   end
 
   def save_game
-    File.open('hangman_save.yaml', 'w') { |file| file.write(current_state.to_yaml) }
-    puts 'Game saved. You can now quit by hitting control + c.'
-  end
-
-  def current_state
-    {
+    current_state = {
       secret: @secret,
       gallows: @gallows,
       previous_feedback: @previous_feedback,
       incorrect_guesses: @incorrect_guesses
     }
+    File.open('hangman_save.yaml', 'w') { |file| file.write(current_state.to_yaml) }
+    puts 'Game saved. You can now quit by hitting control + c.'
+  end
+
+  def ask_to_load_game
+    puts 'Save game detected. Load previous game? y/n'
+    load_game if gets.chomp == 'y'
   end
 
   def load_game
