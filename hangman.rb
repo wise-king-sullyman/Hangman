@@ -123,7 +123,8 @@ class Game
       incorrect_guesses: @incorrect_guesses
     }
     File.open('hangman_save.yaml', 'w') { |file| file.write(current_state.to_yaml) }
-    puts 'Game saved. You can now quit by hitting control + c.'
+    puts 'Game saved. Exiting now.'
+    abort
   end
 
   def ask_to_load_game
