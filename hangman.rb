@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'yaml'
+
 # Responsible for drawing the different stages of the hangmans gallows
 class Gallows
   def initialize
@@ -84,27 +86,56 @@ class Game
   end
 
   def play
-    until @gallows.dropsies?
-      guess = @player.guess
-      new_feedback = @secret.matches(guess, @previous_feedback)
-      break if @secret.solved?(new_feedback)
+    puts 'Load previous game? y/n'
+    load_game if gets.chomp == 'y'
+    puts 'Save and quit the game any round by entering "save" in place of your guess'
+    print_feedback(@previous_feedback)
+    game_loop
+    @secret.solved?(@previous_feedback) ? puts('You won!') : puts('You lose you big looser!')
+  end
 
+  def game_loop
+    until @gallows.dropsies? || @secret.solved?(@previous_feedback)
+      guess = @player.guess
+      save_game if guess == 'save'
+      new_feedback = @secret.matches(guess, @previous_feedback)
       wrong_guess(guess) if new_feedback == @previous_feedback
       print_feedback(new_feedback)
-      @gallows.draw
       @previous_feedback = new_feedback
     end
-    @secret.solved?(new_feedback) ? puts('You won!') : puts('You lose you big looser!')
   end
 
   def print_feedback(feedback)
     puts feedback.join(' ')
     puts "Incorrect Guesses: #{@incorrect_guesses.join(' ')}"
+    @gallows.draw
   end
 
   def wrong_guess(guess)
     @gallows.next_stage 
     @incorrect_guesses.push(guess)
+  end
+
+  def save_game
+    File.open('hangman_save.yaml', 'w') { |file| file.write(current_state.to_yaml) }
+    puts 'Game saved. You can now quit by hitting control + c.'
+  end
+
+  def current_state
+    {
+      secret: @secret,
+      gallows: @gallows,
+      previous_feedback: @previous_feedback,
+      incorrect_guesses: @incorrect_guesses
+    }
+  end
+
+  def load_game
+    save = YAML.load_file('hangman_save.yaml')
+    @secret = save[:secret]
+    @gallows = save[:gallows]
+    @previous_feedback = save[:previous_feedback]
+    @incorrect_guesses = save[:incorrect_guesses]
   end
 end
 
