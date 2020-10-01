@@ -29,7 +29,6 @@ class Secret
     dictionary = File.readlines('5desk.txt').select { |word| word.chomp.length > 5 && word.chomp.length < 12 }
     @word = dictionary.sample.chomp.downcase
     @blank_char = '_ '
-    puts @word
   end
 
   def reveal
@@ -90,7 +89,7 @@ class Game
     puts 'Save and quit the game any round by entering "save" in place of your guess'
     print_feedback(@previous_feedback)
     game_loop
-    @secret.solved?(@previous_feedback) ? puts('You won!') : puts('You lose you big looser!')
+    game_over
   end
 
   def game_loop
@@ -138,6 +137,20 @@ class Game
     @gallows = save[:gallows]
     @previous_feedback = save[:previous_feedback]
     @incorrect_guesses = save[:incorrect_guesses]
+  end
+
+  def game_over
+    if @secret.solved?(@previous_feedback)
+      puts('You won!')
+    else
+      puts('You lose you big looser!')
+      puts "The secret word was #{@secret.reveal}"
+    end
+
+    return unless File.exist?('hangman_save.yaml')
+
+    puts 'Would you like to delete the existing savegame? y/n'
+    File.delete('hangman_save.yaml') if gets.chomp == 'y'
   end
 end
 
