@@ -26,7 +26,9 @@ end
 # Responsible for the generation and checking of the secret word
 class Secret
   def initialize
-    dictionary = File.readlines('5desk.txt').select { |word| word.chomp.length > 5 && word.chomp.length < 12 }
+    dictionary = File.readlines('5desk.txt').select do |word|
+      word.chomp.length > 5 && word.chomp.length < 12
+    end
     @word = dictionary.sample.chomp.downcase
     @blank_char = '_ '
   end
@@ -91,11 +93,12 @@ class Game
     @player = Player.new
     @previous_feedback = @secret.blank_word
     @incorrect_guesses = []
+    @file_name = 'hangman_save.yaml'
   end
 
   def play
-    ask_to_load_game if File.exist?('hangman_save.yaml')
-    puts 'Save and quit the game any round by entering "save" in place of your guess'
+    ask_to_load_game if File.exist?(@file_name)
+    puts 'Save and quit any round by entering "save" in place of your guess'
     print_feedback(@previous_feedback)
     game_loop
     game_over
@@ -130,7 +133,7 @@ class Game
       previous_feedback: @previous_feedback,
       incorrect_guesses: @incorrect_guesses
     }
-    File.open('hangman_save.yaml', 'w') { |file| file.write(current_state.to_yaml) }
+    File.open(@file_name, 'w') { |file| file.write(current_state.to_yaml) }
     puts 'Game saved. Exiting now.'
     abort
   end
@@ -141,7 +144,7 @@ class Game
   end
 
   def load_game
-    save = YAML.load_file('hangman_save.yaml')
+    save = YAML.load_file(@file_name)
     @secret = save[:secret]
     @gallows = save[:gallows]
     @previous_feedback = save[:previous_feedback]
@@ -156,10 +159,10 @@ class Game
       puts "The secret word was #{@secret.reveal}"
     end
 
-    return unless File.exist?('hangman_save.yaml')
+    return unless File.exist?(@file_name)
 
     puts 'Would you like to delete the existing savegame? y/n'
-    File.delete('hangman_save.yaml') if gets.chomp == 'y'
+    File.delete(@file_name) if gets.chomp == 'y'
   end
 end
 
