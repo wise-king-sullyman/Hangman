@@ -45,6 +45,16 @@ class Secret
     combined_feedback
   end
 
+  def blank_word
+    @word.split('').map { |char| char.replace @blank_char }
+  end
+
+  def solved?(feedback)
+    true if @word.split('') == feedback
+  end
+
+  private
+
   def combine_feedback(new_feedback, previous_feedback)
     combined_feedback = new_feedback.map.with_index do |char, index|
       if char != @blank_char
@@ -56,14 +66,6 @@ class Secret
       end
     end
     combined_feedback
-  end
-
-  def blank_word
-    @word.split('').map { |char| char.replace @blank_char }
-  end
-
-  def solved?(feedback)
-    true if @word.split('') == feedback
   end
 end
 
@@ -77,6 +79,8 @@ class Player
     puts 'Guess must be one letter'
     guess
   end
+
+  private
 
   def valid?(guess_to_check)
     return true if guess_to_check.size == 1 && guess_to_check.match?(/[a-z]/)
@@ -103,6 +107,8 @@ class Game
     game_loop
     game_over
   end
+
+  private
 
   def game_loop
     until @gallows.dropsies? || @secret.solved?(@previous_feedback)
