@@ -70,7 +70,16 @@ class Player
   def guess
     puts 'Enter guess now'
     this_guess = gets.chomp.downcase
-    this_guess
+    return this_guess if valid?(this_guess)
+
+    puts 'Guess must be one letter'
+    guess
+  end
+
+  def valid?(guess_to_check)
+    return true if guess_to_check.size == 1 && guess_to_check.match?(/[a-z]/)
+
+    true if guess_to_check == 'save'
   end
 end
 
