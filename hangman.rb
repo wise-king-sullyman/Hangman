@@ -161,7 +161,7 @@ class Game
     if @secret.solved?(@previous_feedback)
       puts('You won!')
     else
-      puts('You lose you big looser!')
+      puts('You lose you big loser!')
       puts "The secret word was #{@secret.reveal}"
     end
 
